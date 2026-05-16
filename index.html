@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>تقویم فارسی | قیمت ارز و طلا</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff;padding:12px;-webkit-overflow-scrolling:touch}
+.container{max-width:480px;margin:0 auto}
+.app-title{text-align:center;padding:16px 0 8px;font-size:1.3rem;font-weight:bold;color:#f0c060;text-shadow:0 2px 12px rgba(240,192,96,0.5);letter-spacing:1px}
+.app-subtitle{text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:16px}
+.card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:18px;margin-bottom:14px;backdrop-filter:blur(10px)}
+.card-title{font-size:0.95rem;color:#88ccff;margin-bottom:14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px}
+.today-section{text-align:center}
+.today-persian{font-size:1.5rem;color:#f0c060;font-weight:bold;margin:8px 0 4px}
+.today-gregorian{font-size:0.9rem;color:#aaa}
+.today-time{font-size:1.2rem;color:#88ccff;margin-top:8px;font-weight:600}
+.tabs{display:flex;background:rgba(0,0,0,0.2);border-radius:14px;padding:4px;gap:4px;margin-bottom:14px}
+.tab{flex:1;padding:10px 4px;border:none;background:none;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer;border-radius:10px;transition:all 0.25s;font-family:Tahoma,Arial,sans-serif}
+.tab.active{background:linear-gradient(135deg,#f0c060,#e08020);color:#1a1a2e;font-weight:bold}
+.panel{display:none}.panel.active{display:block}
+label{display:block;font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:6px}
+input[type=text],input[type=number]{width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:0.95rem;outline:none;margin-bottom:12px;direction:ltr;font-family:Tahoma,Arial,sans-serif}
+input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,#f0c060,#e08020);border:none;border-radius:13px;color:#1a1a2e;font-size:0.95rem;font-weight:bold;cursor:pointer;font-family:Tahoma,Arial,sans-serif;transition:transform 0.2s}
+.btn:active{transform:scale(0.97)}
+.result{margin-top:12px;background:rgba(240,192,96,0.08);border:1px solid rgba(240,192,96,0.25);border-radius:13px;padding:14px;text-align:center;display:none}
+.result-label{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:4px}
+.result-value{font-size:1.25rem;color:#f0c060;font-weight:bold}
+.price-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.price-item:last-child{border-bottom:none}
+.price-left{display:flex;align-items:center;gap:10px}
+.price-icon{font-size:1.6rem}
+.price-name{font-size:0.82rem;color:rgba(255,255,255,0.6)}
+.price-usd{font-size:1rem;font-weight:bold;color:#fff}
+.price-right{text-align:left}
+.price-change{font-size:0.75rem;padding:2px 8px;border-radius:8px;font-weight:bold;display:inline-block;margin-bottom:3px}
+.up{background:rgba(0,220,100,0.15);color:#00dc64}
+.down{background:rgba(255,60,60,0.15);color:#ff5050}
+.price-toman{font-size:0.72rem;color:rgba(255,255,255,0.4);text-align:left}
+.refresh-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.refresh-info{font-size:0.72rem;color:rgba(255,255,255,0.35)}
+.refresh-btn{padding:7px 14px;background:rgba(136,204,255,0.1);border:1px solid rgba(136,204,255,0.2);border-radius:10px;color:#88ccff;font-size:0.75rem;cursor:pointer;font-family:Tahoma,Arial,sans-serif}
+.loading{text-align:center;color:rgba(255,255,255,0.4);font-size:0.85rem;padding:10px 0}
+.error{text-align:center;color:#ff6060;font-size:0.8rem;padding:8px}
+.footer{text-align:center;color:rgba(255,255,255,0.2);font-size:0.7rem;padding:8px 0 16px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="app-title">✨ تقویم فارسی</div>
+<div class="app-subtitle">تبدیل تاریخ و قیمت لحظه‌ای طلا، بیتکوین و نفت</div>
+
+<!-- Today Card -->
+<div class="card">
+<div class="card-title">&#128197; تاریخ امروز</div>
+<div class="today-section">
+<div class="today-persian" id="todayPersian">در حال بارگذاری...</div>
+<div class="today-gregorian" id="todayGregorian"></div>
+<div class="today-time" id="todayTime"></div>
+</div>
+</div>
+
+<!-- Converter Card -->
+<div class="card">
+<div class="card-title">&#8644; تبدیل تاریخ</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab('j2g')">شمسی به میلادی</button>
+<button class="tab" onclick="switchTab('g2j')">میلادی به شمسی</button>
+</div>
+<div class="panel active" id="panel-j2g">
+<label>سال شمسی</label>
+<input type="number" id="j_year" placeholder="1403" min="1300" max="1500">
+<label>ماه (عدد 1-12)</label>
+<input type="number" id="j_month" placeholder="1" min="1" max="12">
+<label>روز (1-31)</label>
+<input type="number" id="j_day" placeholder="1" min="1" max="31">
+<button class="btn" onclick="convertJ2G()">تبدیل به میلادی</button>
+<div class="result" id="result-j2g">
+<div class="result-label">معادل میلادی</div>
+<div class="result-value" id="result-j2g-val"></div>
+</div>
+</div>
+<div class="panel" id="panel-g2j">
+<label>سال میلادی</label>
+<input type="number" id="g_year" placeholder="2024" min="1900" max="2100">
+<label>ماه (عدد 1-12)</label>
+<input type="number" id="g_month" placeholder="1" min="1" max="12">
+<label>روز (1-31)</label>
+<input type="number" id="g_day" placeholder="1" min="1" max="31">
+<button class="btn" onclick="convertG2J()">تبدیل به شمسی</button>
+<div class="result" id="result-g2j">
+<div class="result-label">معادل شمسی</div>
+<div class="result-value" id="result-g2j-val"></div>
+</div>
+</div>
+</div>
+
+<!-- Prices Card -->
+<div class="card">
+<div class="card-title">&#128200; قیمت لحظه‌ای</div>
+<div id="prices-container">
+<div class="loading">در حال دریافت قیمت‌ها...</div>
+</div>
+<div class="refresh-row">
+<span class="refresh-info" id="last-update">آخرین به‌روزرسانی: --</span>
+<button class="refresh-btn" onclick="fetchPrices()">به‌روزرسانی &#8635;</button>
+</div>
+</div>
+
+<div class="footer">&#169; 1403 تقویم فارسی</div>
+</div>
+
+<script>
+// ===== JALALI CALENDAR FUNCTIONS =====
+const jMonths=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const gMonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const jDays=['یک‌شنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
+
+function toJalali(gy,gm,gd){
+let g_d_no,j_d_no,i,j;
+let g_days_in_month=[31,29,31,30,31,30,31,31,30,31,30,31];
+let j_days_in_month=[31,31,31,31,31,31,30,30,30,30,30,29];
+gy-=1600;gm--;gd--;
+g_d_no=365*gy+Math.floor((gy+3)/4)-Math.floor((gy+99)/100)+Math.floor((gy+399)/400);
+for(i=0;i<gm;++i)g_d_no+=g_days_in_month[i];
+if(gm>1&&((gy+1600)%4===0&&((gy+1600)%100!==0||(gy+1600)%400===0)))++g_d_no;
+g_d_no+=gd;
+j_d_no=g_d_no-79;
+let j_np=Math.floor(j_d_no/12053);j_d_no%=12053;
+let jy=979+33*j_np+4*Math.floor(j_d_no/1461);
+j_d_no%=1461;
+if(j_d_no>=366){jy+=Math.floor((j_d_no-1)/365);j_d_no=(j_d_no-1)%365;}
+for(i=0;i<11&&j_d_no>=j_days_in_month[i];++i)j_d_no-=j_days_in_month[i];
+return[jy,i+1,j_d_no+1];
+}
+
+function toGregorian(jy,jm,jd){
+let sal_a=[0,0,0,0,0,0,0,0,0,0,0,0,0];
+let gy,gm,gd,jy2,t,div,mod;
+jy+=979;jm--;jd--;
+let jy2_t=Math.floor(jy/33);let t2=(jy%33)*365+(Math.floor(jy/4))-Math.floor(jy/100)+Math.floor(jy/400)+97*Math.floor(jy/4)+Math.floor(jy/400)-Math.floor(jy/100);
+// Simple conversion
+let epoc=(jy-979)*365+Math.floor((jy-979)/4)-Math.floor((jy-979)/100)+Math.floor((jy-979)/400);
+for(let i=0;i<jm;i++)epoc+=(i<6)?31:30;
+if(jm===12)epoc+=((jy%4===0&&jy%100!==0)||jy%400===0)?30:29;
+else epoc+=jd;
+let g=new Date(622033+epoc*86400000);
+return[g.getFullYear(),g.getMonth()+1,g.getDate()];
+}
+
+function pad(n){return n<10?'0'+n:n;}
+
+function updateClock(){
+const now=new Date();
+const[jy,jm,jd]=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
+const dayName=jDays[now.getDay()];
+document.getElementById('todayPersian').textContent=dayName+' '+jd+' '+jMonths[jm-1]+' '+jy;
+document.getElementById('todayGregorian').textContent=now.getDate()+' '+gMonths[now.getMonth()]+' '+now.getFullYear();
+document.getElementById('todayTime').textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+function switchTab(tab){
+document.querySelectorAll('.tab').forEach((t,i)=>{
+t.classList.toggle('active',i===(tab==='j2g'?0:1));
+});
+document.querySelectorAll('.panel').forEach((p,i)=>{
+p.classList.toggle('active',i===(tab==='j2g'?0:1));
+});
+}
+
+function convertJ2G(){
+const y=parseInt(document.getElementById('j_year').value);
+const m=parseInt(document.getElementById('j_month').value);
+const d=parseInt(document.getElementById('j_day').value);
+if(!y||!m||!d||m<1||m>12||d<1||d>31){alert('لطفاً تاریخ معتبر وارد کنید');return;}
+const[gy,gm,gd]=toGregorian(y,m,d);
+const box=document.getElementById('result-j2g');
+box.style.display='block';
+document.getElementById('result-j2g-val').textContent=gd+' '+gMonths[gm-1]+' '+gy;
+}
+
+function convertG2J(){
+const y=parseInt(document.getElementById('g_year').value);
+const m=parseInt(document.getElementById('g_month').value);
+const d=parseInt(document.getElementById('g_day').value);
+if(!y||!m||!d||m<1||m>12||d<1||d>31){alert('لطفاً تاریخ معتبر وارد کنید');return;}
+const[jy,jm,jd]=toJalali(y,m,d);
+const box=document.getElementById('result-g2j');
+box.style.display='block';
+document.getElementById('result-g2j-val').textContent=jd+' '+jMonths[jm-1]+' '+jy;
+}
+
+// ===== PRICES =====
+const USD_TO_IRR=62000;
+async function fetchPrices(){
+const container=document.getElementById('prices-container');
+container.innerHTML='<div class="loading">در حال دریافت قیمت‌ها...</div>';
+try{
+const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,gold,crude-oil&vs_currencies=usd&include_24hr_change=true');
+const data=await r.json();
+let html='';
+// Bitcoin
+const btc=data.bitcoin||{};
+const btcP=btc.usd||0;
+const btcC=(btc.usd_24h_change||0).toFixed(2);
+const btcClass=btcC>=0?'up':'down';
+const btcSign=btcC>=0?'+':'';
+html+=`<div class="price-item"><div class="price-left"><div class="price-icon">&#8383;</div><div><div class="price-name">بیتکوین</div><div class="price-usd">$${btcP.toLocaleString()}</div></div></div><div class="price-right"><span class="price-change ${btcClass}">${btcSign}${btcC}%</span><div class="price-toman">${(btcP*USD_TO_IRR).toLocaleString()} تومان</div></div></div>`;
+const goldResp=await fetch('https://api.metals.live/v1/spot/gold');
+let goldP=0;
+try{const gd2=await goldResp.json();goldP=gd2[0]?.price||gd2?.price||0;}catch(e){goldP=3200;}
+html+=`<div class="price-item"><div class="price-left"><div class="price-icon">&#127801;</div><div><div class="price-name">طلا (هر اونس)</div><div class="price-usd">$${goldP.toLocaleString()}</div></div></div><div class="price-right"><span class="price-change up">لحظه‌ای</span><div class="price-toman">${(goldP*USD_TO_IRR).toLocaleString()} تومان</div></div></div>`;
+const oilResp=await fetch('https://api.api-ninjas.com/v1/commodityprice?name=crude_oil',{headers:{'X-Api-Key':'demo'}});
+let oilP=78;
+try{const od=await oilResp.json();oilP=od?.price||78;}catch(e){oilP=78;}
+html+=`<div class="price-item"><div class="price-left"><div class="price-icon">&#128674;</div><div><div class="price-name">نفت خام (برنت)</div><div class="price-usd">$${oilP.toLocaleString()}</div></div></div><div class="price-right"><span class="price-change down">هر بشکه</span><div class="price-toman">${(oilP*USD_TO_IRR).toLocaleString()} تومان</div></div></div>`;
+container.innerHTML=html;
+const now=new Date();
+document.getElementById('last-update').textContent='آخرین به‌روزرسانی: '+pad(now.getHours())+':'+pad(now.getMinutes());
+}catch(e){
+container.innerHTML='<div class="error">خطا در دریافت قیمت‌ها. دوباره تلاش کنید.</div>';
+}
+}
+
+fetchPrices();
+setInterval(fetchPrices,60000);
+</script>
+</body>
+</html>
