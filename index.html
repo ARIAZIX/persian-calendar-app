@@ -48,22 +48,18 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 .loading{text-align:center;color:rgba(255,255,255,0.4);font-size:0.85rem;padding:14px 0}
 .err-msg{text-align:center;color:#ff7070;font-size:0.8rem;padding:10px 0}
 .footer{text-align:center;color:rgba(255,255,255,0.2);font-size:0.7rem;padding:8px 0 20px}
-</style>
-</head>
+</style></head>
 <body>
 <div class="container">
 <div class="app-title">&#10024; تقویم فارسی</div>
 <div class="app-subtitle">تبدیل تاریخ | قیمت لحظه‌ای طلا، بیتکوین و نفت</div>
-
 <div class="card">
 <div class="card-title">&#128197; تاریخ امروز</div>
 <div class="today-section">
 <div class="today-persian" id="todayP">در حال بارگذاری...</div>
 <div class="today-gregorian" id="todayG"></div>
 <div class="today-time" id="todayT"></div>
-</div>
-</div>
-
+</div></div>
 <div class="card">
 <div class="card-title">&#8644; تبدیل تاریخ</div>
 <div class="tabs">
@@ -83,18 +79,14 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 <label>روز (1-31)</label><input type="number" id="gd" placeholder="1" min="1" max="31">
 <button class="btn" onclick="doG2J()">تبدیل به شمسی</button>
 <div class="result" id="r-g2j"><div class="result-label">معادل شمسی</div><div class="result-value" id="rv-g2j"></div></div>
-</div>
-</div>
-
+</div></div>
 <div class="card">
 <div class="card-title">&#128200; قیمت لحظه‌ای</div>
 <div id="prices"><div class="loading">در حال دریافت...</div></div>
 <div class="refresh-row">
 <span class="last-upd" id="lupd">آخرین به‌روزرسانی: --</span>
 <button class="refresh-btn" onclick="loadAll()">به‌روز &#8635;</button>
-</div>
-</div>
-
+</div></div>
 <div class="footer">&#169; 1405 تقویم فارسی</div>
 </div>
 
@@ -111,41 +103,24 @@ function sw(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.togg
 function doJ2G(){let y=+document.getElementById('jy').value,m=+document.getElementById('jm').value,d=+document.getElementById('jd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[gy,gm,gd]=toG(y,m,d);document.getElementById('r-j2g').style.display='block';document.getElementById('rv-j2g').textContent=gd+' '+GM[gm-1]+' '+gy;}
 function doG2J(){let y=+document.getElementById('gy').value,m=+document.getElementById('gm').value,d=+document.getElementById('gd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[jy,jm,jd]=toJ(y,m,d);document.getElementById('r-g2j').style.display='block';document.getElementById('rv-g2j').textContent=jd+' '+JM[jm-1]+' '+jy;}
 const IRR=62000;
-function row(icon,name,usd,ch,note){
-let cls=ch>0?'up':ch<0?'down':'neutral';
-let chStr=(ch>0?'+':'')+Number(ch).toFixed(2)+'%';
-return `<div class="price-item"><div class="price-left"><div class="price-icon">${icon}</div><div><div class="price-name">${name}</div><div class="price-usd">$${Number(usd).toLocaleString('en-US',{maximumFractionDigits:2})}</div></div></div><div class="price-right"><span class="badge ${cls}">${chStr}</span><div class="price-sub">${note?note:Math.round(usd*IRR).toLocaleString('fa-IR')+' تومان'}</div></div></div>`;
-}
+function row(icon,name,usd,ch){let cls=ch>0?'up':ch<0?'down':'neutral';let chStr=(ch>0?'+':'')+Number(ch).toFixed(2)+'%';return `<div class="price-item"><div class="price-left"><div class="price-icon">${icon}</div><div><div class="price-name">${name}</div><div class="price-usd">$${Number(usd).toLocaleString('en-US',{maximumFractionDigits:2})}</div></div></div><div class="price-right"><span class="badge ${cls}">${chStr}</span><div class="price-sub">${Math.round(usd*IRR).toLocaleString('fa-IR')} تومان</div></div></div>`;}
 async function loadAll(){
 const el=document.getElementById('prices');
 el.innerHTML='<div class="loading">در حال دریافت قیمت‌ها...</div>';
 try{
-const r1=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,pax-gold&vs_currencies=usd&include_24hr_change=true');
-const d1=await r1.json();
+const[r1,r2]=await Promise.allSettled([
+fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,pax-gold&vs_currencies=usd&include_24hr_change=true'),
+fetch('/api/oil')
+]);
 let html='';
-const btc=d1.bitcoin;
-if(btc&&btc.usd)html+=row('&#8383;','بیتکوین',btc.usd,btc.usd_24h_change||0,null);
-const xau=d1['pax-gold'];
-if(xau&&xau.usd)html+=row('&#127775;','طلا - PAX Gold (هر اونس)',xau.usd,xau.usd_24h_change||0,null);
-let oilPrice=null,oilCh=0;
-try{
-const r2=await fetch('https://query1.finance.yahoo.com/v8/finance/chart/CL%3DF?interval=1d&range=2d');
-const d2=await r2.json();
-const closes=d2.chart.result[0].indicators.quote[0].close;
-if(closes&&closes.length>=2){oilPrice=closes[closes.length-1];const prev=closes[closes.length-2];oilCh=prev?((oilPrice-prev)/prev*100):0;}
-}catch(e2){oilPrice=null;}
-if(oilPrice){html+=row('&#128674;','نفت خام (WTI)',oilPrice,oilCh,null);}
-else{html+=`<div class="price-item"><div class="price-left"><div class="price-icon">&#128674;</div><div><div class="price-name">نفت خام (WTI)</div><div class="price-usd" style="font-size:0.8rem;color:#aaa">داده موجود نیست (محدودیت CORS)</div></div></div><div class="price-right"><span class="badge neutral">~$62</span></div></div>`;}
+if(r1.status==='fulfilled'){const d=await r1.value.json();const btc=d.bitcoin;if(btc&&btc.usd)html+=row('&#8383;','بیتکوین',btc.usd,btc.usd_24h_change||0);const xau=d['pax-gold'];if(xau&&xau.usd)html+=row('&#127775;','طلا (هر اونس)',xau.usd,xau.usd_24h_change||0);}
+if(r2.status==='fulfilled'){const od=await r2.value.json();if(od.price)html+=row('&#128674;','نفت خام WTI',od.price,od.change||0);}
 if(!html)throw new Error('no data');
 el.innerHTML=html;
 const now=new Date();
 document.getElementById('lupd').textContent='آخرین به‌روزرسانی: '+pad(now.getHours())+':'+pad(now.getMinutes());
-}catch(e){
-el.innerHTML='<div class="err-msg">خطا در دریافت. دوباره تلاش کنید.</div>';
-}
+}catch(e){el.innerHTML='<div class="err-msg">خطا در دریافت. دوباره تلاش کنید.</div>';}
 }
 loadAll();
 setInterval(loadAll,90000);
-</script>
-</body>
-</html>
+</script></body></html>
