@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>تقویم فارسی | قیمت ارز و طلا</title>
+<title>تقویم فارسی | طلا بیتکوین نفت</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff;padding:12px;-webkit-overflow-scrolling:touch}
@@ -41,7 +41,7 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 .up{background:rgba(0,220,100,0.15);color:#00dc64}
 .down{background:rgba(255,60,60,0.15);color:#ff5050}
 .neutral{background:rgba(136,204,255,0.15);color:#88ccff}
-.price-toman{font-size:0.7rem;color:rgba(255,255,255,0.35);text-align:left}
+.price-sub{font-size:0.7rem;color:rgba(255,255,255,0.35);text-align:left}
 .refresh-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
 .last-upd{font-size:0.72rem;color:rgba(255,255,255,0.3)}
 .refresh-btn{padding:7px 14px;background:rgba(136,204,255,0.1);border:1px solid rgba(136,204,255,0.25);border-radius:10px;color:#88ccff;font-size:0.78rem;cursor:pointer;font-family:Tahoma,Arial,sans-serif}
@@ -53,7 +53,7 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 <body>
 <div class="container">
 <div class="app-title">&#10024; تقویم فارسی</div>
-<div class="app-subtitle">تبدیل تاریخ و قیمت لحظه‌ای طلا، بیتکوین و نفت</div>
+<div class="app-subtitle">تبدیل تاریخ | قیمت لحظه‌ای طلا، بیتکوین و نفت</div>
 
 <div class="card">
 <div class="card-title">&#128197; تاریخ امروز</div>
@@ -74,14 +74,14 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 <label>سال شمسی</label><input type="number" id="jy" placeholder="1405">
 <label>ماه (1-12)</label><input type="number" id="jm" placeholder="1" min="1" max="12">
 <label>روز (1-31)</label><input type="number" id="jd" placeholder="1" min="1" max="31">
-<button class="btn" onclick="j2g()">تبدیل به میلادی</button>
+<button class="btn" onclick="doJ2G()">تبدیل به میلادی</button>
 <div class="result" id="r-j2g"><div class="result-label">معادل میلادی</div><div class="result-value" id="rv-j2g"></div></div>
 </div>
 <div class="panel" id="p-g2j">
 <label>سال میلادی</label><input type="number" id="gy" placeholder="2026">
 <label>ماه (1-12)</label><input type="number" id="gm" placeholder="1" min="1" max="12">
 <label>روز (1-31)</label><input type="number" id="gd" placeholder="1" min="1" max="31">
-<button class="btn" onclick="g2j()">تبدیل به شمسی</button>
+<button class="btn" onclick="doG2J()">تبدیل به شمسی</button>
 <div class="result" id="r-g2j"><div class="result-label">معادل شمسی</div><div class="result-value" id="rv-g2j"></div></div>
 </div>
 </div>
@@ -91,7 +91,7 @@ input:focus{border-color:#f0c060;box-shadow:0 0 0 3px rgba(240,192,96,0.12)}
 <div id="prices"><div class="loading">در حال دریافت...</div></div>
 <div class="refresh-row">
 <span class="last-upd" id="lupd">آخرین به‌روزرسانی: --</span>
-<button class="refresh-btn" onclick="loadPrices()">به‌روز &#8635;</button>
+<button class="refresh-btn" onclick="loadAll()">به‌روز &#8635;</button>
 </div>
 </div>
 
@@ -108,13 +108,44 @@ function pad(n){return n<10?'0'+n:n;}
 function tick(){let n=new Date();let[jy,jm,jd]=toJ(n.getFullYear(),n.getMonth()+1,n.getDate());document.getElementById('todayP').textContent=DN[n.getDay()]+' '+jd+' '+JM[jm-1]+' '+jy;document.getElementById('todayG').textContent=n.getDate()+' '+GM[n.getMonth()]+' '+n.getFullYear();document.getElementById('todayT').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());}
 setInterval(tick,1000);tick();
 function sw(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='j2g'?0:1)));document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===(t==='j2g'?0:1)));}
-function j2g(){let y=+document.getElementById('jy').value,m=+document.getElementById('jm').value,d=+document.getElementById('jd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[gy,gm,gd]=toG(y,m,d);document.getElementById('r-j2g').style.display='block';document.getElementById('rv-j2g').textContent=gd+' '+GM[gm-1]+' '+gy;}
-function g2j(){let y=+document.getElementById('gy').value,m=+document.getElementById('gm').value,d=+document.getElementById('gd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[jy,jm,jd]=toJ(y,m,d);document.getElementById('r-g2j').style.display='block';document.getElementById('rv-g2j').textContent=jd+' '+JM[jm-1]+' '+jy;}
-const R=62000;
-function row(icon,name,usd,ch){let cls=ch>0?'up':ch<0?'down':'neutral';let s=ch>0?'+':'';return`<div class="price-item"><div class="price-left"><div class="price-icon">${icon}</div><div><div class="price-name">${name}</div><div class="price-usd">$${Number(usd).toLocaleString('en-US',{maximumFractionDigits:2})}</div></div></div><div class="price-right"><span class="badge ${cls}">${s}${Number(ch).toFixed(2)}%</span><div class="price-toman">${Math.round(usd*R).toLocaleString('fa-IR')} تومان</div></div></div>`;}
-async function loadPrices(){const el=document.getElementById('prices');el.innerHTML='<div class="loading">در حال دریافت قیمت‌ها...</div>';try{const ids='bitcoin,pax-gold,wti-crude-oil';const url='https://api.coingecko.com/api/v3/simple/price?ids='+ids+'&vs_currencies=usd&include_24hr_change=true';const res=await fetch(url);if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();let h='';const btc=d['bitcoin'];if(btc&&btc.usd)h+=row('&#8383;','بیتکوین',btc.usd,btc.usd_24h_change||0);const xau=d['pax-gold'];if(xau&&xau.usd)h+=row('&#127775;','طلا (PAX Gold / اونس)',xau.usd,xau.usd_24h_change||0);const oil=d['wti-crude-oil'];if(oil&&oil.usd)h+=row('&#128674;','نفت خام WTI',oil.usd,oil.usd_24h_change||0);if(!h)throw new Error('empty');el.innerHTML=h;const n=new Date();document.getElementById('lupd').textContent='آخرین به‌روزرسانی: '+pad(n.getHours())+':'+pad(n.getMinutes());}catch(e){el.innerHTML='<div class="err-msg">خطا در دریافت. دوباره تلاش کنید.</div>';}}
-loadPrices();
-setInterval(loadPrices,90000);
+function doJ2G(){let y=+document.getElementById('jy').value,m=+document.getElementById('jm').value,d=+document.getElementById('jd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[gy,gm,gd]=toG(y,m,d);document.getElementById('r-j2g').style.display='block';document.getElementById('rv-j2g').textContent=gd+' '+GM[gm-1]+' '+gy;}
+function doG2J(){let y=+document.getElementById('gy').value,m=+document.getElementById('gm').value,d=+document.getElementById('gd').value;if(!y||!m||!d)return alert('لطفاً همه فیلدها را وارد کنید');let[jy,jm,jd]=toJ(y,m,d);document.getElementById('r-g2j').style.display='block';document.getElementById('rv-g2j').textContent=jd+' '+JM[jm-1]+' '+jy;}
+const IRR=62000;
+function row(icon,name,usd,ch,note){
+let cls=ch>0?'up':ch<0?'down':'neutral';
+let chStr=(ch>0?'+':'')+Number(ch).toFixed(2)+'%';
+return `<div class="price-item"><div class="price-left"><div class="price-icon">${icon}</div><div><div class="price-name">${name}</div><div class="price-usd">$${Number(usd).toLocaleString('en-US',{maximumFractionDigits:2})}</div></div></div><div class="price-right"><span class="badge ${cls}">${chStr}</span><div class="price-sub">${note?note:Math.round(usd*IRR).toLocaleString('fa-IR')+' تومان'}</div></div></div>`;
+}
+async function loadAll(){
+const el=document.getElementById('prices');
+el.innerHTML='<div class="loading">در حال دریافت قیمت‌ها...</div>';
+try{
+const r1=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,pax-gold&vs_currencies=usd&include_24hr_change=true');
+const d1=await r1.json();
+let html='';
+const btc=d1.bitcoin;
+if(btc&&btc.usd)html+=row('&#8383;','بیتکوین',btc.usd,btc.usd_24h_change||0,null);
+const xau=d1['pax-gold'];
+if(xau&&xau.usd)html+=row('&#127775;','طلا - PAX Gold (هر اونس)',xau.usd,xau.usd_24h_change||0,null);
+let oilPrice=null,oilCh=0;
+try{
+const r2=await fetch('https://query1.finance.yahoo.com/v8/finance/chart/CL%3DF?interval=1d&range=2d');
+const d2=await r2.json();
+const closes=d2.chart.result[0].indicators.quote[0].close;
+if(closes&&closes.length>=2){oilPrice=closes[closes.length-1];const prev=closes[closes.length-2];oilCh=prev?((oilPrice-prev)/prev*100):0;}
+}catch(e2){oilPrice=null;}
+if(oilPrice){html+=row('&#128674;','نفت خام (WTI)',oilPrice,oilCh,null);}
+else{html+=`<div class="price-item"><div class="price-left"><div class="price-icon">&#128674;</div><div><div class="price-name">نفت خام (WTI)</div><div class="price-usd" style="font-size:0.8rem;color:#aaa">داده موجود نیست (محدودیت CORS)</div></div></div><div class="price-right"><span class="badge neutral">~$62</span></div></div>`;}
+if(!html)throw new Error('no data');
+el.innerHTML=html;
+const now=new Date();
+document.getElementById('lupd').textContent='آخرین به‌روزرسانی: '+pad(now.getHours())+':'+pad(now.getMinutes());
+}catch(e){
+el.innerHTML='<div class="err-msg">خطا در دریافت. دوباره تلاش کنید.</div>';
+}
+}
+loadAll();
+setInterval(loadAll,90000);
 </script>
 </body>
 </html>
